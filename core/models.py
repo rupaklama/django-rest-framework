@@ -9,6 +9,7 @@ class Profession(models.Model):
     def __str__(self):
         return self.description
 
+
 class DataSheet(models.Model):
     description = models.CharField(max_length=50)
     historical_data = models.TextField()
@@ -16,12 +17,26 @@ class DataSheet(models.Model):
     def __str__(self):
         return self.description
 
+
 class Customer(models.Model):
     name = models.CharField(max_length=50)
+    email = models.EmailField(unique=True, null=True)
     address = models.CharField(max_length=50)
     professions = models.ManyToManyField(Profession)
     data_sheet = models.OneToOneField(DataSheet, on_delete=models.CASCADE, null=True)
     active = models.BooleanField(default=True)
+
+    # using properties to add extra information to the serializer
+    @property
+    def status_message(self):  # custom method to return string instead of boolean
+        if self.active:
+            return "Customer is active"
+        else:
+            return "Customer is not active"
+
+    # count of professions, this is added as an extra data to the serializer
+    def num_professions(self):
+        return self.professions.all().count()
 
     def __str__(self):
         return self.name

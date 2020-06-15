@@ -1,6 +1,10 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+
+from rest_framework import viewsets, filters
+from rest_framework.response import Response
+
 from .serializers import CustomerSerializer, ProfessionSerializer, DataSheetSerializer, DocumentSerializer
+from rest_framework.decorators import action
 
 from .models import Customer, Profession, DataSheet, Document
 
@@ -9,6 +13,16 @@ from .models import Customer, Profession, DataSheet, Document
 
 class CustomerViewSet(viewsets.ModelViewSet):
     serializer_class = CustomerSerializer
+    # using DjangoFilterBackend - search filters
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name', 'address')
+
+    # http://localhost:8000/api/customers/?ordering=id
+    ordering_fields = ('name', )  # ordering by id
+    ordering = ('id', )  # default ordering
+
+    # hiding pk-id in detail view
+    # lookup_field = 'email'  # unique field like id
 
     # Custom queryset method - get_queryset
     def get_queryset(self):
@@ -19,6 +33,17 @@ class CustomerViewSet(viewsets.ModelViewSet):
         # objects.filter(active=True) - only active customers, using filter method
         active_customers = Customer.objects.filter(active=True)
         return active_customers
+
+    # custom method using action to deactivate customer
+    @action(detail=True)  # decorator, detail=True means method will execute in detail view
+    def deactivate(self, request, **kwargs):
+        customer = self.get_object()
+        customer.active = False
+        customer.save()
+
+        # serialize customer
+        serializer = CustomerSerializer(customer)
+        return Response(serializer.data)
 
 
 class ProfessionViewSet(viewsets.ModelViewSet):
