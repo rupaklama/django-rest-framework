@@ -1,4 +1,11 @@
 from django.shortcuts import render
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import (
+    AllowAny, IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+    IsAdminUser,
+    DjangoModelPermissions
+)
 
 from rest_framework import viewsets, filters
 from rest_framework.response import Response
@@ -18,8 +25,11 @@ class CustomerViewSet(viewsets.ModelViewSet):
     search_fields = ('name', 'address')
 
     # http://localhost:8000/api/customers/?ordering=id
-    ordering_fields = ('name', )  # ordering by id
-    ordering = ('id', )  # default ordering
+    ordering_fields = ('name',)  # ordering by name
+    ordering = ('id',)  # default ordering
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     # hiding pk-id in detail view
     # lookup_field = 'email'  # unique field like id
@@ -49,13 +59,18 @@ class CustomerViewSet(viewsets.ModelViewSet):
 class ProfessionViewSet(viewsets.ModelViewSet):
     queryset = Profession.objects.all()
     serializer_class = ProfessionSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminUser,)
 
 
 class DataSheetViewSet(viewsets.ModelViewSet):
     queryset = DataSheet.objects.all()
     serializer_class = DataSheetSerializer
+    permission_classes = (AllowAny,)
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (DjangoModelPermissions,)

@@ -28,7 +28,7 @@ class Customer(models.Model):
 
     # using properties to add extra information to the serializer
     @property
-    def status_message(self):  # custom method to return string instead of boolean
+    def status_message(self):  # custom method to return string
         if self.active:
             return "Customer is active"
         else:

@@ -6,6 +6,7 @@ from .models import Customer, Profession, Document, DataSheet
 # this saves internet data
 # NOTE: Nested Serializer have to be place before the main serializer that will be nesting,
 # it's like objects within objects
+# By default nested serializers are read-only.
 class DataSheetSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataSheet
@@ -33,7 +34,9 @@ class CustomerSerializer(serializers.ModelSerializer):
     professions = serializers.StringRelatedField(many=True)  # many to many relationship
 
     # ForeignKey - one to many, document_set is the name of the ForeignKey relationship
-    document_set = serializers.StringRelatedField(many=True)
+    # modal document is link to customer modal, so
+    # document & _set - document is the modal & _set is the method
+    document_set = serializers.StringRelatedField(many=True)  # displays document number
 
     # NOTE: don't use (many=True) for one to one, it's for multiple relationships
 
